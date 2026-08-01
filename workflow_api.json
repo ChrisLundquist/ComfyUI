@@ -1,0 +1,10 @@
+{
+  "25": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "stable_audio_3_small_sfx.safetensors"}},
+  "26": {"class_type": "CLIPLoader", "inputs": {"clip_name": "t5gemma_b_b_ul2.safetensors", "type": "stable_audio", "device": "default"}},
+  "6": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["26", 0], "text": "Sci-fi blaster shot, sharp percussive mechanical transient layered under a bright descending energy zap, snappy attack, short pitched tail, dry and punchy, arcade space shooter weapon. Length: 1 seconds"}},
+  "7": {"class_type": "CLIPTextEncode", "inputs": {"clip": ["26", 0], "text": ""}},
+  "11": {"class_type": "EmptyLatentAudio", "inputs": {"seconds": 2.0, "batch_size": 1}},
+  "3": {"class_type": "KSampler", "inputs": {"model": ["25", 0], "positive": ["6", 0], "negative": ["7", 0], "latent_image": ["11", 0], "seed": 12345, "steps": 8, "cfg": 1.0, "sampler_name": "lcm", "scheduler": "simple", "denoise": 1.0}},
+  "12": {"class_type": "VAEDecodeAudio", "inputs": {"samples": ["3", 0], "vae": ["25", 2]}},
+  "13": {"class_type": "SaveAudio", "inputs": {"audio": ["12", 0], "filename_prefix": "sa3_vae_repro"}}
+}
