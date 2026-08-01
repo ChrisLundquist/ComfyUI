@@ -932,6 +932,14 @@ class VAE:
                 self.process_output = lambda audio: audio
                 self.process_input = lambda audio: audio
                 self.working_dtypes = [torch.bfloat16, torch.float16, torch.float32]
+                if model_management.is_device_mps(device if device is not None else model_management.vae_device()):
+                    #bf16 decodes to broadband noise on backends whose sdpa runs the
+                    #softmax in the input dtype (measured on mps and cpu): the DyT
+                    #qk norms emit +-30..50 so attention logits land where bf16's
+                    #8-bit mantissa quantizes in steps of ~0.25-0.5, and the output
+                    #decorrelates completely (corr ~0 vs fp32). fp16 matches fp32
+                    #(corr 0.9997), so prefer it on mps.
+                    self.working_dtypes = [torch.float16, torch.float32]
                 #This VAE has Parameters and Buffers the non-dynamic caster cannot handle
                 #Force cast it for --disable-dynamic-vram users until there is a true core fix.
                 if not comfy.memory_management.aimdo_enabled:
